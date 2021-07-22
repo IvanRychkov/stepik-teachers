@@ -7,6 +7,14 @@ from pydash.collections import find
 app = Flask(__name__)
 
 
+def get_teacher(teacher_id: int) -> dict:
+    """Получает данные учителя по его id."""
+    with open('data/data.json') as f:
+        data = json.load(f)
+    # Находим преподавателя по id
+    return find(data['teachers'], {'id': teacher_id})
+
+
 @app.route('/')
 def render_main():
     """Здесь будет главная"""
@@ -27,22 +35,21 @@ def render_goal(goal):
 
 @app.route('/profiles/<int:teacher_id>')
 def render_profile(teacher_id):
-    """здесь будет преподаватель"""
-    with open('data/data.json') as f:
-        # Загружаем данные
-        data = json.load(f)
-        # Находим преподавателя по id
-        teacher = find(data['teachers'], {'id': teacher_id})
-        # Получаем русскоязычные названия для целей
-        goals = [v for k, v in data['goals'].items() if k in teacher['goals']]
-        # Получаем русскоязычные названия для дней недели
-        weekdays = data['weekdays']
+    """Рендерит страницу преподавателя."""
+    teacher = get_teacher(teacher_id)
 
-        # Для каждого дня оставляем время, когда преподаватель свободен
-        # + прикрепляем русскоязычное имя
-        free_times = {wd: {'ru_name': weekdays[wd],
-                           'times': [time for time, free in times.items() if free]}
-                      for wd, times in teacher['free'].items()}
+    # Получаем русскоязычные названия для целей
+    with open('data/data.json') as f:
+        data = json.load(f)
+    goals = [v for k, v in data['goals'].items() if k in teacher['goals']]
+    # Получаем русскоязычные названия для дней недели
+    weekdays = data['weekdays']
+
+    # Для каждого дня оставляем время, когда преподаватель свободен
+    # + прикрепляем русскоязычное имя
+    free_times = {wd: {'ru_name': weekdays[wd],
+                       'times': [time for time, free in times.items() if free]}
+                  for wd, times in teacher['free'].items()}
     return render_template('profile.html', teacher=teacher, goals=goals, free_times=free_times)
 
 
