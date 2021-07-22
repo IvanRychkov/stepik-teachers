@@ -15,6 +15,23 @@ def get_teacher(teacher_id: int) -> dict:
     return find(data['teachers'], {'id': teacher_id})
 
 
+def get_goals(teacher=None) -> dict:
+    """Получает список целей. Если указан преподаватель, то получает только цели для преподавателя."""
+    with open('data/data.json') as f:
+        data = json.load(f)
+
+    if teacher:
+        return {k: v for k, v in data['goals'].items() if k in teacher['goals']}
+    else:
+        return data['goals']
+
+
+def get_weekdays() -> dict:
+    with open('data/data.json') as f:
+        data = json.load(f)
+    return data['weekdays']
+
+
 @app.route('/')
 def render_main():
     """Здесь будет главная"""
@@ -36,20 +53,21 @@ def render_goal(goal):
 @app.route('/profiles/<int:teacher_id>')
 def render_profile(teacher_id):
     """Рендерит страницу преподавателя."""
+    # Получаем преподавателя по id
     teacher = get_teacher(teacher_id)
 
     # Получаем русскоязычные названия для целей
-    with open('data/data.json') as f:
-        data = json.load(f)
-    goals = [v for k, v in data['goals'].items() if k in teacher['goals']]
+    goals = get_goals(teacher)
+
     # Получаем русскоязычные названия для дней недели
-    weekdays = data['weekdays']
+    weekdays = get_weekdays()
 
     # Для каждого дня оставляем время, когда преподаватель свободен
     # + прикрепляем русскоязычное имя
     free_times = {wd: {'ru_name': weekdays[wd],
                        'times': [time for time, free in times.items() if free]}
                   for wd, times in teacher['free'].items()}
+
     return render_template('profile.html', teacher=teacher, goals=goals, free_times=free_times)
 
 
