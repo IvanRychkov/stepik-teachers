@@ -20,7 +20,7 @@ def render_all():
 @app.route('/goals/<goal>/')
 def render_goal(goal):
     """здесь будет цель"""
-    render_template('goal.html')
+    return render_template('goal.html')
 
 
 @app.route('/profiles/<int:teacher_id>')
@@ -54,4 +54,4 @@ def render_booking_done():
 
 
 if __name__ == '__main__':
-    app.run()
+    app.run('localhost', 5050, debug=True, use_reloader=True)
