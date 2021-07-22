@@ -3,7 +3,7 @@ from data import data
 
 print('data_loader run')
 # Сохраняем все данные в один словарь
-all_data = dict(goals=data.goals, teachers=data.teachers)
+all_data = dict(goals=data.goals, teachers=data.teachers, weekdays=data.weekdays)
 
 # Создаём файл JSON
 file_path = './data/data.json'

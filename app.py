@@ -1,6 +1,8 @@
 from flask import Flask, render_template, request
 from flask_wtf import FlaskForm
 import data_loader
+import json
+from pydash.collections import find
 
 app = Flask(__name__)
 
@@ -26,9 +28,25 @@ def render_goal(goal):
 @app.route('/profiles/<int:teacher_id>')
 def render_profile(teacher_id):
     """здесь будет преподаватель"""
-    return render_template('profile.html')
+    with open('data/data.json') as f:
+        # Загружаем данные
+        data = json.load(f)
+        # Находим преподавателя по id
+        teacher = find(data['teachers'], {'id': teacher_id})
+        # Получаем русскоязычные названия для целей
+        goals = [v for k, v in data['goals'].items() if k in teacher['goals']]
+        # Получаем русскоязычные названия для дней недели
+        weekdays = data['weekdays']
+
+        # Для каждого дня оставляем время, когда преподаватель свободен
+        # + прикрепляем русскоязычное имя
+        free_times = {wd: {'ru_name': weekdays[wd],
+                           'times': [time for time, free in times.items() if free]}
+                      for wd, times in teacher['free'].items()}
+    return render_template('profile.html', teacher=teacher, goals=goals, free_times=free_times)
 
 
+# id name about picture rating price goals free
 @app.route('/request/')
 def render_request_form():
     """Заявка на подбор"""
@@ -41,7 +59,7 @@ def render_request_done():
     return render_template('request_done.html')
 
 
-@app.route('/booking/<int:teacher_id>/<int:weekday>/<time>/')
+@app.route('/booking/<int:teacher_id>/<weekday>/<time>/')
 def render_booking_form(teacher_id, weekday, time):
     """здесь будет форма бронирования"""
     return render_template('booking.html')
