@@ -1,5 +1,8 @@
+import random
+
 from flask import Flask, render_template, request
 from flask_wtf import FlaskForm
+from flask_wtf.csrf import CsrfProtect
 from wtforms import HiddenField, StringField, IntegerField
 from wtforms.validators import InputRequired
 import data_loader
@@ -7,6 +10,9 @@ import json
 from pydash.collections import find
 
 app = Flask(__name__)
+
+# Генерируем случайный ключ
+app.secret_key = str(random.getrandbits(256))
 
 
 def get_teacher(teacher_id: int) -> dict:

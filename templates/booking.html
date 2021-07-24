@@ -3,7 +3,7 @@
 <main class="container mt-3">
   <div class="row mt-5">
     <div class="col-10 col-md-6 offset-1 offset-md-3 mb-3">
-      <form action="booking_done.html" class="card mb-3">
+      <form action="/booking_done/" class="card mb-3" method="post">
         <div class="card-body text-center pt-5">
           <img src="../static/pict%201.png" class="mb-3" width="95" alt="">
           <h2 class="h5 card-title mt-2 mb-2">{{ teacher.name }}</h2>
@@ -18,12 +18,15 @@
                 <input class="form-control" type="hidden" name="clientTeacher" value="10">
             </div>
 
-          <label class="mb-1 mt-2" for="clientName">Вас зовут</label>
-          <input class="form-control" type="text" name="clientName" id="clientName">
+<!--          <label class="mb-1 mt-2" for="clientName">Вас зовут</label>-->
+            {{ form.name.label(class='mb-1 mt-2') }}
+            {{ form.name(class='form-control') }}
 
-          <label class="mb-1 mt-2" for="clientPhone">Ваш телефон</label>
-          <input class="form-control" type="tel"  name="clientPhone" id="clientPhone">
-
+<!--          <label class="mb-1 mt-2" for="clientPhone">Ваш телефон</label>-->
+            {{ form.phone.label(class='mb-1 mt-2') }}
+<!--          <input class="form-control" type="tel"  name="clientPhone" id="clientPhone">-->
+            {{ form.phone(class='form-control') }}
+            {{ form.csrf_token }}
           <input type="submit" class="btn btn-primary btn-block mt-4" value="Записаться на пробный урок">
 
         </div>
