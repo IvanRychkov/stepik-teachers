@@ -1,5 +1,7 @@
 from flask import Flask, render_template, request
 from flask_wtf import FlaskForm
+from wtforms import HiddenField, StringField, IntegerField
+from wtforms.validators import InputRequired
 import data_loader
 import json
 from pydash.collections import find
@@ -30,6 +32,11 @@ def get_weekdays() -> dict:
     with open('data/data.json') as f:
         data = json.load(f)
     return data['weekdays']
+
+
+class BookingForm(FlaskForm):
+    name = StringField('Вас зовут', [InputRequired('Пожалуйста, укажите ваше имя.')])
+    phone = StringField('Ваш телефон', [InputRequired('Пожалуйста, укажите ваш телефон.')])
 
 
 @app.route('/')
@@ -87,10 +94,17 @@ def render_request_done():
 @app.route('/booking/<int:teacher_id>/<weekday>/<time>/')
 def render_booking_form(teacher_id, weekday, time):
     """здесь будет форма бронирования"""
-    return render_template('booking.html')
+    teacher = get_teacher(teacher_id)
+    weekday = get_weekdays()[weekday]
+    form = BookingForm()
+    return render_template('booking.html',
+                           teacher=teacher,
+                           weekday=weekday,
+                           time=time,
+                           form=form)
 
 
-@app.route('/booking_done/')
+@app.route('/booking_done/', methods=['POST'])
 def render_booking_done():
     """заявка отправлена"""
     return render_template('booking_done.html')
