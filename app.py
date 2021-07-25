@@ -3,7 +3,7 @@ import random
 from flask import Flask, render_template, request
 from pydash.collections import filter_
 
-from csrf import generate_csrf
+# from csrf import generate_csrf
 from data_loader import create_data, get_goals, get_all_teachers, get_teacher, get_weekdays
 from forms import RequestForm, BookingForm, SortForm, write_form_to_json
 
@@ -14,7 +14,8 @@ REQUEST_DATA = 'data/request.json'
 
 app = Flask(__name__)
 # Генерируем случайный ключ
-app.secret_key = generate_csrf()
+# app.secret_key = generate_csrf()
+app.secret_key = 'hello-world-this-is-test-key'
 
 # Создаём JSON-базу данных
 create_data()
