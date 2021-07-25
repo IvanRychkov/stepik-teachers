@@ -1,50 +1,23 @@
 {% block teachers %}
 <div class="row">
-      <div class="col-12 col-lg-10 offset-lg-1 m-auto">
-<!--          Здесь цикл-->
+    <div class="col-12 col-lg-10 offset-lg-1 m-auto">
+        <!--          Здесь цикл-->
         {% for teacher in teachers %}
         <div class="card mb-4">
-          <div class="card-body">
-            <div class="row">
-              <div class="col-3"><img src="{{ teacher.picture }}" class="img-fluid" alt=""></div>
-              <div class="col-9">
-                <p class="float-right">Рейтинг: {{ teacher.rating }} Ставка: {{ teacher.price }} / час</p>
-                <h2 class="h4">{{ teacher.name }}</h2>
-                <p>{{ teacher.about }}</p>
-                <a href="/profiles/{{ teacher.id }}/" class="btn btn-outline-primary btn-sm mr-3 mb-2">Показать информацию и расписание</a>
-              </div>
+            <div class="card-body">
+                <div class="row">
+                    <div class="col-3"><img src="{{ teacher.picture }}" class="img-fluid" alt=""></div>
+                    <div class="col-9">
+                        <p class="float-right">Рейтинг: {{ teacher.rating }} Ставка: {{ teacher.price }} / час</p>
+                        <h2 class="h4">{{ teacher.name }}</h2>
+                        <p>{{ teacher.about }}</p>
+                        <a href="/profiles/{{ teacher.id }}/" class="btn btn-outline-primary btn-sm mr-3 mb-2">Показать
+                            информацию и расписание</a>
+                    </div>
+                </div>
             </div>
-          </div>
         </div>
         {% endfor %}
-        <div class="card mb-4">
-          <div class="card-body">
-            <div class="row">
-              <div class="col-3"><img src="../../static/pict%202.png" class="img-fluid" alt=""></div>
-              <div class="col-9">
-                <p class="float-right">Рейтинг: 4.8 Ставка: 900 / час</p>
-                <h2 class="h4">Julie Nguyen</h2>
-                <p>Сертифицированный репетитор IELTS. Являюсь сертифицировнным CELTA преподавателем английского языка, проживающим за границей. Опыт работы в сфере преподавания - 9 лет.</p>
-                <a href="#" class="btn btn-outline-primary btn-sm mr-3 mb-2">Показать информацию и расписание</a>
-
-              </div>
-            </div>
-          </div>
-        </div>
-        <div class="card mb-4">
-          <div class="card-body">
-            <div class="row">
-              <div class="col-3"><img src="../../static/pict%203.png" class="img-fluid" alt=""></div>
-              <div class="col-9">
-                <p class="float-right">Рейтинг: 4.8 Ставка: 1300 / час</p>
-                <h2 class="h4">Wendy Edwards</h2>
-                <p>Молодой и современный репетитор и переводчик с четырёхлетним опытом работы репетиторства Индивидуальные занятия по скайпу, которые ведёт молодой специалист отделения "Перевода </p>
-                <a href="#" class="btn btn-outline-primary btn-sm mr-3 mb-2">Показать информацию и расписание</a>
-
-              </div>
-            </div>
-          </div>
-        </div>
-      </div>
     </div>
+</div>
 {% endblock %}
