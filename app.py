@@ -79,7 +79,8 @@ class BookingForm(PersonalForm):
 class RequestForm(PersonalForm):
     goals = RadioField('Какая цель занятий?',
                        choices=[*get_goals().items()],
-                       default='travel')
+                       default='travel',
+                       validators=[InputRequired('Выберите цель занятий')])
     times = RadioField('Сколько времени есть?',
                        choices=[
                            ('1-2', '1-2 часа в неделю'),
@@ -87,7 +88,8 @@ class RequestForm(PersonalForm):
                            ('5-7', '5-7 часов в неделю'),
                            ('7-10', '7-10 часов в неделю')
                        ],
-                       default='1-2')
+                       default='1-2',
+                       validators=[InputRequired('Укажите, сколько времени вы готовы учиться')])
 
 
 @app.route('/')
@@ -139,10 +141,20 @@ def render_request_form():
                            form=form)
 
 
-@app.route('/request_done/')
+@app.route('/request_done/', methods=['POST'])
 def render_request_done():
     """заявка на подбор отправлена"""
-    return render_template('request_done.html')
+    # Извлечём данные из формы
+    form = RequestForm()
+    goal_ru = get_goals()[form.goals.data]
+    time_chosen = dict(form.times.choices)[form.times.data]
+
+    # Запишем в JSON
+    write_form_to_json(REQUEST_DATA, form)
+    return render_template('request_done.html',
+                           form=form,
+                           goal=goal_ru,
+                           time=time_chosen)
 
 
 @app.route('/booking/<int:teacher_id>/<weekday>/<time>/')
