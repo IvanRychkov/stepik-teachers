@@ -20,10 +20,10 @@ app = Flask(__name__)
 app.secret_key = generate_csrf()
 
 
-def sort_teachers(teachers: list, sort_type: str):
+def sort_teachers(teachers: list, sort_type):
     """Сортировка учителей."""
     # Если не случайно, то делаем сортировку по ключу
-    # sort_type = int(sort_type)
+    sort_type = int(sort_type)
     if sort_type == 1:
         # По рейтингу
         return sorted(teachers, key=lambda x: x['rating'], reverse=True)
@@ -46,10 +46,15 @@ def render_index():
                            teachers=random_teachers)
 
 
-@app.route('/all/', methods=['GET', 'POST'])
+@app.route('/all/')
 def render_all():
     """Вывод всех преподавателей на одной странице."""
-    form = SortForm()
+    if request.args.get('sort_by'):
+        # Если в адресной строке есть критерий сортировки, отразим его в поле выбора
+        form = SortForm(sort_by=request.args.get('sort_by'))
+    else:
+        # Либо используем сортировку по умолчанию
+        form = SortForm()
 
     return render_template('all.html',
                            teachers=sort_teachers(get_all_teachers(), form.sort_by.data),
