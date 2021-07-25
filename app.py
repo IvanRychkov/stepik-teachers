@@ -1,8 +1,7 @@
 import random
 
-from flask import Flask, render_template, request
+from flask import Flask, render_template, request, redirect
 from flask_wtf import FlaskForm
-from flask_wtf.csrf import CsrfProtect
 from wtforms import HiddenField, StringField, IntegerField
 from wtforms.validators import InputRequired
 import data_loader
@@ -118,13 +117,11 @@ def render_booking_form(teacher_id, weekday, time):
 def render_booking_done():
     """заявка отправлена"""
     # Подтянем данные из POST-запроса
-    print(request.form)
-
     form = BookingForm()
-    print(form.weekday.data)
-    weekday = get_weekdays()[form.weekday.data]
+    weekday_name = get_weekdays()[form.weekday.data]
     return render_template('booking_done.html',
-                           weekday=weekday)
+                           weekday=weekday_name,
+                           form=form)
 
 
 if __name__ == '__main__':
