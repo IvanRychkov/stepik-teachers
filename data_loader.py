@@ -5,7 +5,7 @@ from pydash import find
 
 from data import data
 
-DATA_PATH = 'data/data.json'
+DATA_PATH = './data/data.json'
 
 
 def create_data():
