@@ -1,15 +1,16 @@
 {% block sort %}
 <div class="card mb-4">
-        <div class="card-body align-right">
+    <div class="card-body align-right">
 
-            <p class="lead float-left d-inline-block mt-2 mb-0"><strong>{{ teachers|length }} преподавателей в базе</strong></p>
+        <p class="lead float-left d-inline-block mt-2 mb-0"><strong>{{ teachers|length }} преподавателей в базе</strong>
+        </p>
 
-            <form class="float-right d-inline-block" action="/all/">
-                <div class="form-inline">
-                    {{ sort_form.sort_by(class_='custom-select my-1 mr-2') }}
-                    <button type="submit" class="btn btn-primary my-1">Сортировать</button>
-                </div>
-            </form>
-        </div>
+        <form class="float-right d-inline-block" action="/all/">
+            <div class="form-inline">
+                {{ sort_form.sort_by(class_='custom-select my-1 mr-2') }}
+                <button type="submit" class="btn btn-primary my-1">Сортировать</button>
+            </div>
+        </form>
     </div>
+</div>
 {% endblock %}
