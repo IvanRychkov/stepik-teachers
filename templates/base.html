@@ -16,13 +16,11 @@
       </button>
       <div class="collapse navbar-collapse" id="navbarNav">
         <ul class="navbar-nav">
-          <li class="nav-item active">
-            <!--TODO: active links-->
-            <a class="nav-link" href="/all/">Все репетиторы</a>
+          {% for route, name in [('all', 'Все репетиторы'), ('request', 'Заявка на подбор')] %}
+          <li class="nav-item {% if request.path == '/' + route + '/' %} active{% endif %}">
+            <a class="nav-link" href="/{{ route }}/">{{ name }}</a>
           </li>
-          <li class="nav-item">
-            <a class="nav-link" href="/request/">Заявка на подбор</a>
-          </li>
+          {% endfor %}
         </ul>
       </div>
       <span class="navbar-text d-sm-none d-lg-block">
