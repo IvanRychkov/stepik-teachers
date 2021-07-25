@@ -213,5 +213,10 @@ def render_booking_done():
                            form=form)
 
 
+@app.errorhandler(404)
+def render_error(e):
+    return render_template('error.html')
+
+
 if __name__ == '__main__':
-    app.run()
+    app.run('localhost', 5050, use_reloader=True, debug=True)
