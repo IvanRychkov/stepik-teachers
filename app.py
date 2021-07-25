@@ -37,7 +37,7 @@ def write_form_to_json(path: str, form: FlaskForm):
             json.dump([form.data], f)
 
 
-def get_all_teachers() -> dict:
+def get_all_teachers() -> list[dict]:
     """Загружает данные всех преподавателей."""
     with open('data/data.json') as f:
         data = json.load(f)
@@ -67,10 +67,11 @@ def get_weekdays() -> dict:
 
 @app.route('/')
 def render_index():
-    """Здесь будет главная"""
+    """Главная страница. Содержит 6 случайных преподавателей и возможность выбора цели."""
+    random_teachers = random.sample(get_all_teachers(), 6)
     return render_template('index.html',
                            goals=get_goals(),
-                           teachers=get_all_teachers())
+                           teachers=random_teachers)
 
 
 @app.route('/all/')
