@@ -1,5 +1,4 @@
 import random
-
 from flask import Flask, render_template, request
 from flask_wtf import FlaskForm
 from wtforms import HiddenField, StringField, RadioField
@@ -38,23 +37,26 @@ def write_form_to_json(path: str, form: FlaskForm):
             json.dump([form.data], f)
 
 
+def get_all_teachers() -> dict:
+    """Загружает данные всех преподавателей."""
+    with open('data/data.json') as f:
+        data = json.load(f)
+    return data['teachers']
+
+
 def get_teacher(teacher_id: int) -> dict:
     """Получает данные учителя по его id."""
-    with open('data/data.json') as f:
-        data = json.load(f)
-    # Находим преподавателя по id
-    return find(data['teachers'], {'id': teacher_id})
+    return find(get_all_teachers(), {'id': teacher_id})
 
 
-def get_goals(teacher=None) -> dict:
+def get_goals(teacher: dict = None, drop_emoji=False) -> dict:
     """Получает список целей. Если указан преподаватель, то получает только цели для преподавателя."""
+    if teacher:
+        return {k: v for k, v in get_goals(drop_emoji=drop_emoji).items() if k in teacher['goals']}
+
     with open('data/data.json') as f:
         data = json.load(f)
-
-    if teacher:
-        return {k: v for k, v in data['goals'].items() if k in teacher['goals']}
-    else:
-        return data['goals']
+        return {k: v['name'] for k, v in data['goals'].items()} if drop_emoji else data['goals']
 
 
 def get_weekdays() -> dict:
@@ -63,6 +65,49 @@ def get_weekdays() -> dict:
     return data['weekdays']
 
 
+@app.route('/')
+def render_index():
+    """Здесь будет главная"""
+    return render_template('index.html',
+                           goals=get_goals(),
+                           teachers=get_all_teachers())
+
+
+@app.route('/all/')
+def render_all():
+    """здесь будут преподаватели"""
+    return render_template('all.html',
+                           teachers=get_all_teachers())
+
+
+@app.route('/goals/<goal>/')
+def render_goal(goal):
+    """здесь будет цель"""
+    return render_template('goal.html')
+
+
+@app.route('/profiles/<int:teacher_id>/')
+def render_profile(teacher_id):
+    """Рендерит страницу преподавателя."""
+    # Получаем преподавателя по id
+    teacher = get_teacher(teacher_id)
+
+    # Получаем русскоязычные названия для целей
+    goals = get_goals(teacher, drop_emoji=True)
+
+    # Получаем русскоязычные названия для дней недели
+    weekdays = get_weekdays()
+
+    # Для каждого дня оставляем время, когда преподаватель свободен
+    # + прикрепляем русскоязычное имя
+    free_times = {wd: {'ru_name': weekdays[wd],
+                       'times': [time for time, free in times.items() if free]}
+                  for wd, times in teacher['free'].items()}
+
+    return render_template('profile.html', teacher=teacher, goals=goals, free_times=free_times)
+
+
+# Блок с формами
 class PersonalForm(FlaskForm):
     """Базовый класс для форм с персональными данными."""
     name = StringField('Вас зовут', [InputRequired('Пожалуйста, укажите ваше имя.')])
@@ -78,7 +123,7 @@ class BookingForm(PersonalForm):
 
 class RequestForm(PersonalForm):
     goals = RadioField('Какая цель занятий?',
-                       choices=[*get_goals().items()],
+                       choices=[*get_goals(drop_emoji=True).items()],
                        default='travel',
                        validators=[InputRequired('Выберите цель занятий')])
     times = RadioField('Сколько времени есть?',
@@ -92,46 +137,6 @@ class RequestForm(PersonalForm):
                        validators=[InputRequired('Укажите, сколько времени вы готовы учиться')])
 
 
-@app.route('/')
-def render_index():
-    """Здесь будет главная"""
-    return render_template('index.html', goals=get_goals())
-
-
-@app.route('/all/')
-def render_all():
-    """здесь будут преподаватели"""
-    return render_template('all.html')
-
-
-@app.route('/goals/<goal>/')
-def render_goal(goal):
-    """здесь будет цель"""
-    return render_template('goal.html')
-
-
-@app.route('/profiles/<int:teacher_id>')
-def render_profile(teacher_id):
-    """Рендерит страницу преподавателя."""
-    # Получаем преподавателя по id
-    teacher = get_teacher(teacher_id)
-
-    # Получаем русскоязычные названия для целей
-    goals = get_goals(teacher)
-
-    # Получаем русскоязычные названия для дней недели
-    weekdays = get_weekdays()
-
-    # Для каждого дня оставляем время, когда преподаватель свободен
-    # + прикрепляем русскоязычное имя
-    free_times = {wd: {'ru_name': weekdays[wd],
-                       'times': [time for time, free in times.items() if free]}
-                  for wd, times in teacher['free'].items()}
-
-    return render_template('profile.html', teacher=teacher, goals=goals, free_times=free_times)
-
-
-# id name about picture rating price goals free
 @app.route('/request/')
 def render_request_form():
     """Заявка на подбор"""
