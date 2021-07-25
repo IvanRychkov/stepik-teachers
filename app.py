@@ -1,17 +1,41 @@
 import random
 
-from flask import Flask, render_template, request, redirect
+from flask import Flask, render_template, request
 from flask_wtf import FlaskForm
 from wtforms import HiddenField, StringField, IntegerField
 from wtforms.validators import InputRequired
 import data_loader
 import json
 from pydash.collections import find
+import os
 
 app = Flask(__name__)
 
 # Генерируем случайный ключ
 app.secret_key = str(random.getrandbits(256))
+
+# Пути к собираемым данным
+BOOKING_DATA = 'data/booking.json'
+REQUEST_DATA = 'data/request.json'
+
+
+def write_form_to_json(path: str, form: FlaskForm):
+    # Если файл есть
+    if os.path.isfile(path):
+        # Откроем и дополним новым словарём
+        with open(path, mode='r') as f:
+            data = json.load(f)
+            data.append(form.data)
+        # Обновим файл
+        with open(path, mode='w') as f:
+            json.dump(obj=data,
+                      fp=f,
+                      ensure_ascii=False)
+    # Либо создадим новый JSON
+    else:
+        print('new file')
+        with open(path, 'w') as f:
+            json.dump([form.data], f)
 
 
 def get_teacher(teacher_id: int) -> dict:
@@ -119,6 +143,8 @@ def render_booking_done():
     # Подтянем данные из POST-запроса
     form = BookingForm()
     weekday_name = get_weekdays()[form.weekday.data]
+
+    write_form_to_json(BOOKING_DATA, form)
     return render_template('booking_done.html',
                            weekday=weekday_name,
                            form=form)
