@@ -2,7 +2,7 @@ import random
 
 from flask import Flask, render_template, request
 from flask_wtf import FlaskForm
-from wtforms import HiddenField, StringField, IntegerField
+from wtforms import HiddenField, StringField, RadioField
 from wtforms.validators import InputRequired
 import data_loader
 import json
@@ -63,12 +63,31 @@ def get_weekdays() -> dict:
     return data['weekdays']
 
 
-class BookingForm(FlaskForm):
+class PersonalForm(FlaskForm):
+    """Базовый класс для форм с персональными данными."""
     name = StringField('Вас зовут', [InputRequired('Пожалуйста, укажите ваше имя.')])
     phone = StringField('Ваш телефон', [InputRequired('Пожалуйста, укажите ваш телефон.')])
+
+
+class BookingForm(PersonalForm):
+    """Расширение персональной формы скрытыми полями для бронирования."""
     weekday = HiddenField('weekday')
     time = HiddenField('time')
     teacher_id = HiddenField('teacher_id')
+
+
+class RequestForm(PersonalForm):
+    goals = RadioField('Какая цель занятий?',
+                       choices=[*get_goals().items()],
+                       default='travel')
+    times = RadioField('Сколько времени есть?',
+                       choices=[
+                           ('1-2', '1-2 часа в неделю'),
+                           ('3-5', '3-5 часов в неделю'),
+                           ('5-7', '5-7 часов в неделю'),
+                           ('7-10', '7-10 часов в неделю')
+                       ],
+                       default='1-2')
 
 
 @app.route('/')
@@ -114,7 +133,10 @@ def render_profile(teacher_id):
 @app.route('/request/')
 def render_request_form():
     """Заявка на подбор"""
-    return render_template('request.html')
+    form = RequestForm()
+
+    return render_template('request.html',
+                           form=form)
 
 
 @app.route('/request_done/')
