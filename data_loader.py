@@ -5,11 +5,11 @@ from pydash import find
 
 from data import data
 
-DATA_PATH = './data/data.json'
+DATA_PATH = r'./data/data.json'
 
 
 def create_data():
-    if os.path.isfile(DATA_PATH):
+    if os.path.exists(DATA_PATH):
         return
     print('loading data into json...')
     # Сохраняем все данные в один словарь
