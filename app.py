@@ -12,10 +12,11 @@ from forms import RequestForm, BookingForm, SortForm, write_form_to_json
 BOOKING_DATA = 'data/booking.json'
 REQUEST_DATA = 'data/request.json'
 
-
 app = Flask(__name__)
 # Генерируем случайный ключ
 app.secret_key = generate_csrf()
+
+create_data()
 
 
 def sort_teachers(teachers: list, sort_type):
@@ -157,5 +158,3 @@ def render_error(*args):
 
 if __name__ == '__main__':
     app.run()
-    # Загружаем данные в json
-    create_data()
