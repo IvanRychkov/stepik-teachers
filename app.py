@@ -3,22 +3,27 @@ from flask import Flask, render_template
 from flask_wtf import FlaskForm
 from wtforms import HiddenField, StringField, RadioField
 from wtforms.validators import InputRequired
-import data_loader
+from data_loader import load_data
 import json
 from pydash.collections import find, filter_
 import os
 
-app = Flask(__name__)
-
-# Генерируем случайный ключ
-app.secret_key = str(random.getrandbits(256))
-
+# Путь к json-данным
+DATA_PATH = 'data/data.json'
 # Пути к собираемым данным
 BOOKING_DATA = 'data/booking.json'
 REQUEST_DATA = 'data/request.json'
 
+# Загружаем данные в json
+load_data(DATA_PATH)
 
-def write_form_to_json(path: str, form: FlaskForm):
+app = Flask(__name__)
+# Генерируем случайный ключ
+app.secret_key = str(random.getrandbits(256))
+
+
+def write_form_to_json(path: str, form: FlaskForm) -> None:
+    """Записывает данные формы в JSON-файл."""
     # Если файл есть
     if os.path.isfile(path):
         # Откроем и дополним новым словарём
@@ -39,7 +44,7 @@ def write_form_to_json(path: str, form: FlaskForm):
 
 def get_all_teachers() -> list[dict]:
     """Загружает данные всех преподавателей."""
-    with open('data/data.json') as f:
+    with open(DATA_PATH) as f:
         data = json.load(f)
     return data['teachers']
 
@@ -54,13 +59,14 @@ def get_goals(teacher: dict = None, drop_emoji=False) -> dict:
     if teacher:
         return {k: v for k, v in get_goals(drop_emoji=drop_emoji).items() if k in teacher['goals']}
 
-    with open('data/data.json') as f:
+    with open(DATA_PATH) as f:
         data = json.load(f)
         return {k: v['name'] for k, v in data['goals'].items()} if drop_emoji else data['goals']
 
 
 def get_weekdays() -> dict:
-    with open('data/data.json') as f:
+    """Загружает словарь с днями недели."""
+    with open(DATA_PATH) as f:
         data = json.load(f)
     return data['weekdays']
 
@@ -84,8 +90,10 @@ def render_all():
 @app.route('/goals/<goal>/')
 def render_goal(goal):
     """Преподаватели по цели учёбы."""
+    # Фильтруем преподавателей
     goal_teachers = filter_(get_all_teachers(), lambda t: goal in t['goals'])
-    print(goal_teachers)
+
+    # Получаем русское название цели
     current_goal = get_goals()[goal]
     return render_template('goal.html',
                            teachers=goal_teachers,
@@ -94,7 +102,7 @@ def render_goal(goal):
 
 @app.route('/profiles/<int:teacher_id>/')
 def render_profile(teacher_id):
-    """Рендерит страницу преподавателя."""
+    """Страница преподавателя."""
     # Получаем преподавателя по id
     teacher = get_teacher(teacher_id)
 
@@ -128,6 +136,7 @@ class BookingForm(PersonalForm):
 
 
 class RequestForm(PersonalForm):
+    """Персональная форма с выбором цели и времени на обучение."""
     goals = RadioField('Какая цель занятий?',
                        choices=[*get_goals(drop_emoji=True).items()],
                        default='travel',
@@ -145,18 +154,19 @@ class RequestForm(PersonalForm):
 
 @app.route('/request/')
 def render_request_form():
-    """Заявка на подбор"""
+    """Заявка на подбор."""
     form = RequestForm()
-
     return render_template('request.html',
                            form=form)
 
 
 @app.route('/request_done/', methods=['POST'])
 def render_request_done():
-    """заявка на подбор отправлена"""
+    """Заявка на подбор отправлена."""
     # Извлечём данные из формы
     form = RequestForm()
+
+    # Получим user-friendly названия цели и времени
     goal_ru = get_goals()[form.goals.data]
     time_chosen = dict(form.times.choices)[form.times.data]
 
@@ -170,9 +180,12 @@ def render_request_done():
 
 @app.route('/booking/<int:teacher_id>/<weekday>/<time>/')
 def render_booking_form(teacher_id, weekday, time):
-    """здесь будет форма бронирования"""
+    """Форма бронирования времени."""
+    # Загружаем данные
     teacher = get_teacher(teacher_id)
     weekday_name = get_weekdays()[weekday]
+
+    # Инициализируем форму со скрытыми полями
     form = BookingForm(weekday=weekday,
                        time=time,
                        teacher_id=teacher['id'])
@@ -184,11 +197,12 @@ def render_booking_form(teacher_id, weekday, time):
 
 @app.route('/booking_done/', methods=['POST'])
 def render_booking_done():
-    """заявка отправлена"""
-    # Подтянем данные из POST-запроса
+    """Заявка на бронирование отправлена."""
+    # Тянем данные из POST-запроса
     form = BookingForm()
     weekday_name = get_weekdays()[form.weekday.data]
 
+    # Сохраняем в JSON
     write_form_to_json(BOOKING_DATA, form)
     return render_template('booking_done.html',
                            weekday=weekday_name,
