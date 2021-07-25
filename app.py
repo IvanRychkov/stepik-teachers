@@ -1,59 +1,40 @@
-import json
-import os
 import random
 
-from flask import Flask, render_template
-from flask_wtf import FlaskForm
-from pydash.collections import find, filter_
-from wtforms import HiddenField, StringField, RadioField
-from wtforms.validators import InputRequired
+from flask import Flask, render_template, request
+from pydash.collections import filter_
 
-from data_loader import load_data
 from csrf import generate_csrf
+from data_loader import load_data, get_goals, get_all_teachers, get_teacher, get_weekdays
+from forms import RequestForm, BookingForm, SortForm, write_form_to_json
 
 # Путь к json-данным
-DATA_PATH = 'data/data.json'
 # Пути к собираемым данным
 BOOKING_DATA = 'data/booking.json'
 REQUEST_DATA = 'data/request.json'
 
 # Загружаем данные в json
-load_data(DATA_PATH)
+load_data()
 
 app = Flask(__name__)
 # Генерируем случайный ключ
 app.secret_key = generate_csrf()
 
 
-def load_json(path) -> dict:
-    """Загружает JSON-набор данных."""
-    with open(path) as f:
-        data = json.load(f)
-    return data
-
-
-def get_all_teachers() -> list[dict]:
-    """Загружает данные всех преподавателей."""
-    return load_json(DATA_PATH)['teachers']
-
-
-def get_teacher(teacher_id: int) -> dict:
-    """Получает данные учителя по его id."""
-    return find(get_all_teachers(), {'id': teacher_id})
-
-
-def get_goals(teacher: dict = None, drop_emoji=False) -> dict:
-    """Получает список целей. Если указан преподаватель, то получает только цели для преподавателя."""
-    if teacher:
-        return {k: v for k, v in get_goals(drop_emoji=drop_emoji).items() if k in teacher['goals']}
-
-    data = load_json(DATA_PATH)
-    return {k: v['name'] for k, v in data['goals'].items()} if drop_emoji else data['goals']
-
-
-def get_weekdays() -> dict:
-    """Загружает словарь с днями недели."""
-    return load_json(DATA_PATH)['weekdays']
+def sort_teachers(teachers: list, sort_type: str):
+    """Сортировка учителей."""
+    # Если не случайно, то делаем сортировку по ключу
+    # sort_type = int(sort_type)
+    if sort_type == 1:
+        # По рейтингу
+        return sorted(teachers, key=lambda x: x['rating'], reverse=True)
+    if sort_type == 2:
+        # Сначала дорогие
+        return sorted(teachers, key=lambda x: x['price'], reverse=True)
+    if sort_type == 3:
+        # Сначала недорогие
+        return sorted(teachers, key=lambda x: x['price'])
+    # Либо случайная выдача
+    return random.sample(teachers, len(teachers))
 
 
 @app.route('/')
@@ -65,11 +46,14 @@ def render_index():
                            teachers=random_teachers)
 
 
-@app.route('/all/')
+@app.route('/all/', methods=['GET', 'POST'])
 def render_all():
     """Вывод всех преподавателей на одной странице."""
+    form = SortForm()
+
     return render_template('all.html',
-                           teachers=get_all_teachers())
+                           teachers=sort_teachers(get_all_teachers(), form.sort_by.data),
+                           sort_form=form)
 
 
 @app.route('/goals/<goal>/')
@@ -104,57 +88,6 @@ def render_profile(teacher_id):
                   for wd, times in teacher['free'].items()}
 
     return render_template('profile.html', teacher=teacher, goals=goals, free_times=free_times)
-
-
-# Блок с формами
-class PersonalForm(FlaskForm):
-    """Базовый класс для форм с персональными данными."""
-    name = StringField('Вас зовут', [InputRequired('Пожалуйста, укажите ваше имя.')])
-    phone = StringField('Ваш телефон', [InputRequired('Пожалуйста, укажите ваш телефон.')])
-
-
-class BookingForm(PersonalForm):
-    """Расширение персональной формы скрытыми полями для бронирования."""
-    weekday = HiddenField('weekday')
-    time = HiddenField('time')
-    teacher_id = HiddenField('teacher_id')
-
-
-class RequestForm(PersonalForm):
-    """Персональная форма с выбором цели и времени на обучение."""
-    goals = RadioField('Какая цель занятий?',
-                       choices=[*get_goals(drop_emoji=True).items()],
-                       default='travel',
-                       validators=[InputRequired('Выберите цель занятий')])
-    times = RadioField('Сколько времени есть?',
-                       choices=[
-                           ('1-2', '1-2 часа в неделю'),
-                           ('3-5', '3-5 часов в неделю'),
-                           ('5-7', '5-7 часов в неделю'),
-                           ('7-10', '7-10 часов в неделю')
-                       ],
-                       default='1-2',
-                       validators=[InputRequired('Укажите, сколько времени вы готовы учиться')])
-
-
-def write_form_to_json(path: str, form: FlaskForm) -> None:
-    """Записывает данные формы в JSON-файл."""
-    # Если файл есть
-    if os.path.isfile(path):
-        # Откроем и дополним новым словарём
-        with open(path, mode='r') as f:
-            data = json.load(f)
-            data.append(form.data)
-        # Обновим файл
-        with open(path, mode='w') as f:
-            json.dump(obj=data,
-                      fp=f,
-                      ensure_ascii=False)
-    # Либо создадим новый JSON
-    else:
-        print('new file')
-        with open(path, 'w') as f:
-            json.dump([form.data], f)
 
 
 @app.route('/request/')
@@ -215,9 +148,9 @@ def render_booking_done():
 
 
 @app.errorhandler(404)
-def render_error(e):
+def render_error(*args):
     return render_template('error.html')
 
 
 if __name__ == '__main__':
-    app.run()
+    app.run('localhost', 5050, use_reloader=True, debug=True)

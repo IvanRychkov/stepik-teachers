@@ -1,6 +1,9 @@
 {% block teachers %}
 <section class="row">
     <div class="col-12 col-lg-10 offset-lg-1 m-auto">
+        {% if sort_form %}
+        {% include 'blocks/teachers_sorted.html' %}
+        {% endif %}
         <!--          Здесь цикл-->
         {% for teacher in teachers %}
         <div class="card mb-4">
