@@ -1,12 +1,14 @@
+import json
+import os
 import random
+
 from flask import Flask, render_template
 from flask_wtf import FlaskForm
+from pydash.collections import find, filter_
 from wtforms import HiddenField, StringField, RadioField
 from wtforms.validators import InputRequired
+
 from data_loader import load_data
-import json
-from pydash.collections import find, filter_
-import os
 
 # Путь к json-данным
 DATA_PATH = 'data/data.json'

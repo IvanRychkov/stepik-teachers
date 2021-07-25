@@ -1,38 +1,40 @@
 {% extends 'base.html' %}
 {% block main %}
 <main class="container mt-3">
-  <div class="card my-4 mx-auto">
-    <div class="card-body m-2 m-md-4">
-      <article class="row">
-        <div class="col-5"><img src="{{ teacher.picture }}" class="img-fluid" alt=""></div>
-        <div class="col-7">
+    <div class="card my-4 mx-auto">
+        <div class="card-body m-2 m-md-4">
+            <article class="row">
+                <div class="col-5"><img src="{{ teacher.picture }}" class="img-fluid" alt=""></div>
+                <div class="col-7">
 
-          <section class="teacher=info">
+                    <section class="teacher=info">
 
-            <h1 class="h2">{{ teacher.name }}</h1>
-            <p><span class="badge badge-secondary mr-2">{{ goals.values()|join(', ') }} </span>Рейтинг: {{ teacher.rating }} Ставка: {{ teacher.price }} / час</p>
-            <p>{{ teacher.about }}</p>
+                        <h1 class="h2">{{ teacher.name }}</h1>
+                        <p><span class="badge badge-secondary mr-2">{{ goals.values()|join(', ') }} </span>Рейтинг: {{
+                            teacher.rating }} Ставка: {{ teacher.price }} / час</p>
+                        <p>{{ teacher.about }}</p>
 
-          </section>
-          <section class="available">
+                    </section>
+                    <section class="available">
 
-            <h4 class="mb-4 mt-5">Записаться на пробный урок</h4>
-            {% for weekday_code, day in free_times.items() %}
-            <h6 class="mt-4">{{ day.ru_name }}</h6>
-            {% if day.times|length > 0 %}
-            {% for t in day.times %}
-            <a href="/booking/{{ teacher.id }}/{{ weekday_code }}/{{ t }}/" class="btn btn-outline-success mr-2">{{ t }} свободно</a>
-            {% endfor %}
-            {% else %}
-            <p>Нет свободных уроков</p>
-            {% endif %}
-            {% endfor %}
-          </section>
+                        <h4 class="mb-4 mt-5">Записаться на пробный урок</h4>
+                        {% for weekday_code, day in free_times.items() %}
+                        <h6 class="mt-4">{{ day.ru_name }}</h6>
+                        {% if day.times|length > 0 %}
+                        {% for t in day.times %}
+                        <a href="/booking/{{ teacher.id }}/{{ weekday_code }}/{{ t }}/"
+                           class="btn btn-outline-success mr-2">{{ t }} свободно</a>
+                        {% endfor %}
+                        {% else %}
+                        <p>Нет свободных уроков</p>
+                        {% endif %}
+                        {% endfor %}
+                    </section>
 
+                </div>
+            </article>
         </div>
-      </article>
-    </div>
 
-  </div>
+    </div>
 </main>
 {% endblock %}
