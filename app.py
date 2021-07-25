@@ -43,6 +43,9 @@ def get_weekdays() -> dict:
 class BookingForm(FlaskForm):
     name = StringField('Вас зовут', [InputRequired('Пожалуйста, укажите ваше имя.')])
     phone = StringField('Ваш телефон', [InputRequired('Пожалуйста, укажите ваш телефон.')])
+    weekday = HiddenField('weekday')
+    time = HiddenField('time')
+    teacher_id = HiddenField('teacher_id')
 
 
 @app.route('/')
@@ -101,19 +104,27 @@ def render_request_done():
 def render_booking_form(teacher_id, weekday, time):
     """здесь будет форма бронирования"""
     teacher = get_teacher(teacher_id)
-    weekday = get_weekdays()[weekday]
-    form = BookingForm()
+    weekday_name = get_weekdays()[weekday]
+    form = BookingForm(weekday=weekday,
+                       time=time,
+                       teacher_id=teacher['id'])
     return render_template('booking.html',
+                           form=form,
                            teacher=teacher,
-                           weekday=weekday,
-                           time=time,
-                           form=form)
+                           weekday=weekday_name)
 
 
 @app.route('/booking_done/', methods=['POST'])
 def render_booking_done():
     """заявка отправлена"""
-    return render_template('booking_done.html')
+    # Подтянем данные из POST-запроса
+    print(request.form)
+
+    form = BookingForm()
+    print(form.weekday.data)
+    weekday = get_weekdays()[form.weekday.data]
+    return render_template('booking_done.html',
+                           weekday=weekday)
 
 
 if __name__ == '__main__':
