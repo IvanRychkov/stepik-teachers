@@ -93,9 +93,9 @@ class RequestForm(PersonalForm):
 
 
 @app.route('/')
-def render_main():
+def render_index():
     """Здесь будет главная"""
-    return render_template('index.html')
+    return render_template('index.html', goals=get_goals())
 
 
 @app.route('/all/')
