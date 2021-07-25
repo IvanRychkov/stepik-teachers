@@ -1,11 +1,11 @@
 import random
-from flask import Flask, render_template, request
+from flask import Flask, render_template
 from flask_wtf import FlaskForm
 from wtforms import HiddenField, StringField, RadioField
 from wtforms.validators import InputRequired
 import data_loader
 import json
-from pydash.collections import find
+from pydash.collections import find, filter_
 import os
 
 app = Flask(__name__)
@@ -84,9 +84,12 @@ def render_all():
 @app.route('/goals/<goal>/')
 def render_goal(goal):
     """Преподаватели по цели учёбы."""
-    goal_teachers = find(get_all_teachers(), lambda t: goal in t['goals'])
+    goal_teachers = filter_(get_all_teachers(), lambda t: goal in t['goals'])
+    print(goal_teachers)
+    current_goal = get_goals()[goal]
     return render_template('goal.html',
-                           teachers=goal_teachers)
+                           teachers=goal_teachers,
+                           goal=current_goal)
 
 
 @app.route('/profiles/<int:teacher_id>/')
