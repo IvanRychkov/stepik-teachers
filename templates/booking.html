@@ -17,14 +17,9 @@
                         {{ form.weekday(class_='form-control') }}
                         {{ form.time(class_='form-control') }}
                     </div>
-
-                    <!--          <label class="mb-1 mt-2" for="clientName">Вас зовут</label>-->
                     {{ form.name.label(class='mb-1 mt-2') }}
                     {{ form.name(class='form-control') }}
-
-                    <!--          <label class="mb-1 mt-2" for="clientPhone">Ваш телефон</label>-->
                     {{ form.phone.label(class='mb-1 mt-2') }}
-                    <!--          <input class="form-control" type="tel"  name="clientPhone" id="clientPhone">-->
                     {{ form.phone(class='form-control') }}
                     {{ form.csrf_token }}
                     <input type="submit" class="btn btn-primary btn-block mt-4" value="Записаться на пробный урок">
