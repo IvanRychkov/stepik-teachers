@@ -22,31 +22,16 @@ app = Flask(__name__)
 app.secret_key = str(random.getrandbits(256))
 
 
-def write_form_to_json(path: str, form: FlaskForm) -> None:
-    """Записывает данные формы в JSON-файл."""
-    # Если файл есть
-    if os.path.isfile(path):
-        # Откроем и дополним новым словарём
-        with open(path, mode='r') as f:
-            data = json.load(f)
-            data.append(form.data)
-        # Обновим файл
-        with open(path, mode='w') as f:
-            json.dump(obj=data,
-                      fp=f,
-                      ensure_ascii=False)
-    # Либо создадим новый JSON
-    else:
-        print('new file')
-        with open(path, 'w') as f:
-            json.dump([form.data], f)
+def load_json(path) -> dict:
+    """Загружает JSON-набор данных."""
+    with open(path) as f:
+        data = json.load(f)
+    return data
 
 
 def get_all_teachers() -> list[dict]:
     """Загружает данные всех преподавателей."""
-    with open(DATA_PATH) as f:
-        data = json.load(f)
-    return data['teachers']
+    return load_json(DATA_PATH)['teachers']
 
 
 def get_teacher(teacher_id: int) -> dict:
@@ -59,16 +44,13 @@ def get_goals(teacher: dict = None, drop_emoji=False) -> dict:
     if teacher:
         return {k: v for k, v in get_goals(drop_emoji=drop_emoji).items() if k in teacher['goals']}
 
-    with open(DATA_PATH) as f:
-        data = json.load(f)
-        return {k: v['name'] for k, v in data['goals'].items()} if drop_emoji else data['goals']
+    data = load_json(DATA_PATH)
+    return {k: v['name'] for k, v in data['goals'].items()} if drop_emoji else data['goals']
 
 
 def get_weekdays() -> dict:
     """Загружает словарь с днями недели."""
-    with open(DATA_PATH) as f:
-        data = json.load(f)
-    return data['weekdays']
+    return load_json(DATA_PATH)['weekdays']
 
 
 @app.route('/')
@@ -150,6 +132,26 @@ class RequestForm(PersonalForm):
                        ],
                        default='1-2',
                        validators=[InputRequired('Укажите, сколько времени вы готовы учиться')])
+
+
+def write_form_to_json(path: str, form: FlaskForm) -> None:
+    """Записывает данные формы в JSON-файл."""
+    # Если файл есть
+    if os.path.isfile(path):
+        # Откроем и дополним новым словарём
+        with open(path, mode='r') as f:
+            data = json.load(f)
+            data.append(form.data)
+        # Обновим файл
+        with open(path, mode='w') as f:
+            json.dump(obj=data,
+                      fp=f,
+                      ensure_ascii=False)
+    # Либо создадим новый JSON
+    else:
+        print('new file')
+        with open(path, 'w') as f:
+            json.dump([form.data], f)
 
 
 @app.route('/request/')
