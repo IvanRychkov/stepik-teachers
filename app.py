@@ -16,6 +16,7 @@ app = Flask(__name__)
 # Генерируем случайный ключ
 app.secret_key = generate_csrf()
 
+# Создаём JSON-базу данных
 create_data()
 
 

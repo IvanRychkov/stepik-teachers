@@ -1,4 +1,5 @@
 import json
+import os
 
 from pydash import find
 
@@ -8,13 +9,15 @@ DATA_PATH = 'data/data.json'
 
 
 def create_data():
+    if os.path.isfile(DATA_PATH):
+        print(DATA_PATH, 'already exists')
+        return
     print('data_loader run')
     # Сохраняем все данные в один словарь
     all_data = dict(goals=data.goals, teachers=data.teachers, weekdays=data.weekdays)
-
     # Создаём файл JSON
     with open(DATA_PATH, 'w') as f:
-        json.dump(all_data, f, ensure_ascii=False)
+        json.dump(all_data, f)
 
     print('data loaded into', DATA_PATH)
 
@@ -26,6 +29,7 @@ def load_json(path) -> dict:
             data = json.load(f)
             return data
     except FileNotFoundError:
+        print('json data not yet created')
         create_data()
         return load_json(path)
 
