@@ -9,7 +9,7 @@ from wtforms import HiddenField, StringField, RadioField
 from wtforms.validators import InputRequired
 
 from data_loader import load_data
-from csrf import CSRF_TOKEN
+from csrf import generate_csrf
 
 # Путь к json-данным
 DATA_PATH = 'data/data.json'
@@ -22,7 +22,7 @@ load_data(DATA_PATH)
 
 app = Flask(__name__)
 # Генерируем случайный ключ
-app.secret_key = CSRF_TOKEN
+app.secret_key = generate_csrf()
 
 
 def load_json(path) -> dict:
@@ -220,4 +220,4 @@ def render_error(e):
 
 
 if __name__ == '__main__':
-    app.run('localhost', 5050, use_reloader=True, debug=True)
+    app.run()
