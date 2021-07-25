@@ -76,15 +76,17 @@ def render_index():
 
 @app.route('/all/')
 def render_all():
-    """здесь будут преподаватели"""
+    """Вывод всех преподавателей на одной странице."""
     return render_template('all.html',
                            teachers=get_all_teachers())
 
 
 @app.route('/goals/<goal>/')
 def render_goal(goal):
-    """здесь будет цель"""
-    return render_template('goal.html')
+    """Преподаватели по цели учёбы."""
+    goal_teachers = find(get_all_teachers(), lambda t: goal in t['goals'])
+    return render_template('goal.html',
+                           teachers=goal_teachers)
 
 
 @app.route('/profiles/<int:teacher_id>/')
