@@ -4,7 +4,7 @@ from flask import Flask, render_template, request
 from pydash.collections import filter_
 
 from csrf import generate_csrf
-from data_loader import load_data, get_goals, get_all_teachers, get_teacher, get_weekdays
+from data_loader import create_data, get_goals, get_all_teachers, get_teacher, get_weekdays
 from forms import RequestForm, BookingForm, SortForm, write_form_to_json
 
 # Путь к json-данным
@@ -13,7 +13,7 @@ BOOKING_DATA = 'data/booking.json'
 REQUEST_DATA = 'data/request.json'
 
 # Загружаем данные в json
-load_data()
+create_data()
 
 app = Flask(__name__)
 # Генерируем случайный ключ

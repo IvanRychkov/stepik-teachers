@@ -7,7 +7,7 @@ from data import data
 DATA_PATH = 'data/data.json'
 
 
-def load_data():
+def create_data():
     print('data_loader run')
     # Сохраняем все данные в один словарь
     all_data = dict(goals=data.goals, teachers=data.teachers, weekdays=data.weekdays)
@@ -21,9 +21,13 @@ def load_data():
 
 def load_json(path) -> dict:
     """Загружает JSON-набор данных."""
-    with open(path) as f:
-        data = json.load(f)
-    return data
+    try:
+        with open(path) as f:
+            data = json.load(f)
+            return data
+    except FileNotFoundError:
+        create_data()
+        return load_json(path)
 
 
 def get_all_teachers() -> list[dict]:
