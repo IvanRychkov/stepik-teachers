@@ -158,4 +158,4 @@ def render_error(*args):
 
 
 if __name__ == '__main__':
-    app.run('localhost', 5050, use_reloader=True, debug=True)
+    app.run()
