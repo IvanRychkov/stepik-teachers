@@ -2,7 +2,7 @@ import json
 import os
 
 from flask_wtf import FlaskForm
-from wtforms import RadioField, StringField, HiddenField, SelectField, SubmitField
+from wtforms import RadioField, StringField, HiddenField, SelectField
 from wtforms.validators import InputRequired
 
 from data_loader import get_goals
