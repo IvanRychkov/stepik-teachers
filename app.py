@@ -1,11 +1,15 @@
 import random
+import os
 
 from flask import Flask, render_template, request
+from flask_sqlalchemy import SQLAlchemy
+from flask_migrate import Migrate
 from pydash.collections import filter_
 
 from csrf import generate_csrf
 from data_loader import create_data, get_goals, get_all_teachers, get_teacher, get_weekdays
 from forms import RequestForm, BookingForm, SortForm, write_form_to_json
+from models import Request, Teacher, Goal, Booking, Weekday
 
 # Путь к json-данным
 # Пути к собираемым данным
@@ -13,6 +17,13 @@ BOOKING_DATA = 'data/booking.json'
 REQUEST_DATA = 'data/request.json'
 
 app = Flask(__name__)
+
+# Создаём базу данных
+app.config["SQLALCHEMY_DATABASE_URI"] = os.environ.get("DATABASE_URL")
+app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
+db = SQLAlchemy(app=app)
+migrate = Migrate(app, db)
+
 # Генерируем случайный ключ
 app.secret_key = generate_csrf()
 
