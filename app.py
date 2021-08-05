@@ -73,18 +73,14 @@ def render_all():
                            sort_form=form)
 
 
-@app.route('/goals/<goal>/')
-def render_goal(goal):
+@app.route('/goals/<int:goal_id>/')
+def render_goal(goal_id):
     """Преподаватели по цели учёбы."""
-    # Фильтруем преподавателей
-    # goal_teachers = filter_(get_all_teachers(), lambda t: goal in t['goals'])
-
-    # Получаем русское название цели
-    # current_goal = get_goals()[goal]
-    # return render_template('goal.html',
-    #                        teachers=goal_teachers,
-    #                        goal=current_goal)
-    pass
+    # Находим цель по id
+    goal = db.session.query(Goal).get(goal_id)
+    return render_template('goal.html',
+                           teachers=goal.teachers,  # преподаватели джойнятся
+                           goal=goal)
 
 
 @app.route('/profiles/<int:teacher_id>/')
