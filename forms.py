@@ -5,8 +5,6 @@ from flask_wtf import FlaskForm
 from wtforms import RadioField, StringField, HiddenField, SelectField
 from wtforms.validators import InputRequired
 
-from data_loader import get_goals
-
 
 class SortForm(FlaskForm):
     """Выбор типа сортировки для репетиторов."""
@@ -34,7 +32,7 @@ class BookingForm(PersonalForm):
 class RequestForm(PersonalForm):
     """Персональная форма с выбором цели и времени на обучение."""
     goals = RadioField('Какая цель занятий?',
-                       choices=[*get_goals(drop_emoji=True).items()],
+                       # choices=[*get_goals(drop_emoji=True).items()],
                        default='travel',
                        validators=[InputRequired('Выберите цель занятий')])
     times = RadioField('Сколько времени есть?',

@@ -2,33 +2,32 @@ import random
 import os
 
 from flask import Flask, render_template, request
-from flask_sqlalchemy import SQLAlchemy
 from flask_migrate import Migrate
 from pydash.collections import filter_
+from data_loader import load_data
 
+from models import db, Teacher
 from csrf import generate_csrf
-from data_loader import create_data, get_goals, get_all_teachers, get_teacher, get_weekdays
 from forms import RequestForm, BookingForm, SortForm, write_form_to_json
-from models import Request, Teacher, Goal, Booking, Weekday
 
-# Путь к json-данным
-# Пути к собираемым данным
-BOOKING_DATA = 'data/booking.json'
-REQUEST_DATA = 'data/request.json'
 
 app = Flask(__name__)
 
-# Создаём базу данных
-app.config["SQLALCHEMY_DATABASE_URI"] = os.environ.get("DATABASE_URL")
+# Привязываем базу к приложению
+app.config["SQLALCHEMY_DATABASE_URI"] = 'postgresql://postgres:postgres@127.0.0.1:5432/postgres'
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
-db = SQLAlchemy(app=app)
+
+app.app_context().push()
+db.init_app(app)
+
+# Создаём объект миграции
 migrate = Migrate(app, db)
 
+# Загружаем данные в базу
+load_data(db)
+# db.session.query(Teacher).all()
 # Генерируем случайный ключ
 app.secret_key = generate_csrf()
-
-# Создаём JSON-базу данных
-create_data()
 
 
 def sort_teachers(teachers: list, sort_type):
@@ -51,60 +50,62 @@ def sort_teachers(teachers: list, sort_type):
 @app.route('/')
 def render_index():
     """Главная страница. Содержит 6 случайных преподавателей и возможность выбора цели."""
-    random_teachers = random.sample(get_all_teachers(), 6)
-    return render_template('index.html',
-                           goals=get_goals(),
-                           teachers=random_teachers)
+    # random_teachers = random.sample(get_all_teachers(), 6)
+    # return render_template('index.html',
+    #                        goals=get_goals(),
+    #                        teachers=random_teachers)
+    pass
 
 
 @app.route('/all/')
 def render_all():
     """Вывод всех преподавателей на одной странице."""
-    if request.args.get('sort_by'):
-        # Если в адресной строке есть критерий сортировки, отразим его в поле выбора
-        form = SortForm(sort_by=request.args.get('sort_by'))
-    else:
-        # Либо используем сортировку по умолчанию
-        form = SortForm()
-
-    return render_template('all.html',
-                           teachers=sort_teachers(get_all_teachers(), form.sort_by.data),
-                           sort_form=form)
-
+    # if request.args.get('sort_by'):
+    #     # Если в адресной строке есть критерий сортировки, отразим его в поле выбора
+    #     form = SortForm(sort_by=request.args.get('sort_by'))
+    # else:
+    #     # Либо используем сортировку по умолчанию
+    #     form = SortForm()
+    #
+    # return render_template('all.html',
+    #                        teachers=sort_teachers(get_all_teachers(), form.sort_by.data),
+    #                        sort_form=form)
+    pass
 
 @app.route('/goals/<goal>/')
 def render_goal(goal):
     """Преподаватели по цели учёбы."""
     # Фильтруем преподавателей
-    goal_teachers = filter_(get_all_teachers(), lambda t: goal in t['goals'])
+    # goal_teachers = filter_(get_all_teachers(), lambda t: goal in t['goals'])
 
     # Получаем русское название цели
-    current_goal = get_goals()[goal]
-    return render_template('goal.html',
-                           teachers=goal_teachers,
-                           goal=current_goal)
+    # current_goal = get_goals()[goal]
+    # return render_template('goal.html',
+    #                        teachers=goal_teachers,
+    #                        goal=current_goal)
+    pass
 
 
 @app.route('/profiles/<int:teacher_id>/')
 def render_profile(teacher_id):
     """Страница преподавателя."""
     # Получаем преподавателя по id
-    teacher = get_teacher(teacher_id)
+    # teacher = get_teacher(teacher_id)
 
     # Получаем русскоязычные названия для целей
-    goals = get_goals(teacher, drop_emoji=True)
-
-    # Получаем русскоязычные названия для дней недели
-    weekdays = get_weekdays()
-
-    # Для каждого дня оставляем время, когда преподаватель свободен
-    # + прикрепляем русскоязычное имя
-    free_times = {wd: {'ru_name': weekdays[wd],
-                       'times': [time for time, free in times.items() if free]}
-                  for wd, times in teacher['free'].items()}
-
-    return render_template('profile.html', teacher=teacher, goals=goals, free_times=free_times)
-
+    # goals = get_goals(teacher, drop_emoji=True)
+    #
+    # # Получаем русскоязычные названия для дней недели
+    # weekdays = get_weekdays()
+    #
+    # # Для каждого дня оставляем время, когда преподаватель свободен
+    # # + прикрепляем русскоязычное имя
+    # free_times = {wd: {'ru_name': weekdays[wd],
+    #                    'times': [time for time, free in times.items() if free]}
+    #               for wd, times in teacher['free'].items()}
+    #
+    # return render_template('profile.html', teacher=teacher, goals=goals, free_times=free_times)
+    pass
 
 @app.route('/request/')
 def render_request_form():
@@ -121,46 +122,46 @@ def render_request_done():
     form = RequestForm()
 
     # Получим user-friendly названия цели и времени
-    goal_ru = get_goals()[form.goals.data]
+    # goal_ru = get_goals()[form.goals.data]
     time_chosen = dict(form.times.choices)[form.times.data]
 
     # Запишем в JSON
-    write_form_to_json(REQUEST_DATA, form)
-    return render_template('request_done.html',
-                           form=form,
-                           goal=goal_ru,
-                           time=time_chosen)
+    # write_form_to_json(REQUEST_DATA, form)
+    # return render_template('request_done.html',
+    #                        form=form,
+    #                        goal=goal_ru,
+    #                        time=time_chosen)
 
 
 @app.route('/booking/<int:teacher_id>/<weekday>/<time>/')
 def render_booking_form(teacher_id, weekday, time):
     """Форма бронирования времени."""
     # Загружаем данные
-    teacher = get_teacher(teacher_id)
-    weekday_name = get_weekdays()[weekday]
-
-    # Инициализируем форму со скрытыми полями
-    form = BookingForm(weekday=weekday,
-                       time=time,
-                       teacher_id=teacher['id'])
-    return render_template('booking.html',
-                           form=form,
-                           teacher=teacher,
-                           weekday=weekday_name)
+    # teacher = get_teacher(teacher_id)
+    # weekday_name = get_weekdays()[weekday]
+    #
+    # # Инициализируем форму со скрытыми полями
+    # form = BookingForm(weekday=weekday,
+    #                    time=time,
+    #                    teacher_id=teacher['id'])
+    # return render_template('booking.html',
+    #                        form=form,
+    #                        teacher=teacher,
+    #                        weekday=weekday_name)
 
 
 @app.route('/booking_done/', methods=['POST'])
 def render_booking_done():
     """Заявка на бронирование отправлена."""
     # Тянем данные из POST-запроса
-    form = BookingForm()
-    weekday_name = get_weekdays()[form.weekday.data]
-
-    # Сохраняем в JSON
-    write_form_to_json(BOOKING_DATA, form)
-    return render_template('booking_done.html',
-                           weekday=weekday_name,
-                           form=form)
+    # form = BookingForm()
+    # weekday_name = get_weekdays()[form.weekday.data]
+    #
+    # # Сохраняем в JSON
+    # write_form_to_json(BOOKING_DATA, form)
+    # return render_template('booking_done.html',
+    #                        weekday=weekday_name,
+    #                        form=form)
 
 
 @app.errorhandler(404)
