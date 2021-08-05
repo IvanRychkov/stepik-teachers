@@ -31,7 +31,7 @@ load_data(db)
 app.secret_key = generate_csrf()
 
 
-def sort_teachers(teachers: list, sort_type):
+def sort_teachers(sort_type):
     """Сортировка учителей."""
     # Если не случайно, то делаем сортировку по ключу
     sort_type = int(sort_type)
@@ -43,7 +43,7 @@ def sort_teachers(teachers: list, sort_type):
         return Teacher.query.order_by(Teacher.price.desc()).all()
     if sort_type == 3:
         # Сначала недорогие
-        return Teacher.query.order_by(Teacher.price.desc()).all()
+        return Teacher.query.order_by(Teacher.price).all()
     # Либо случайная выдача
     all_teachers = Teacher.query.all()
     return random.sample(all_teachers, len(all_teachers))
@@ -56,23 +56,22 @@ def render_index():
     return render_template('index.html',
                            goals=Goal.query.all(),
                            teachers=random_teachers)
-    pass
 
 
 @app.route('/all/')
 def render_all():
     """Вывод всех преподавателей на одной странице."""
-    # if request.args.get('sort_by'):
-    #     # Если в адресной строке есть критерий сортировки, отразим его в поле выбора
-    #     form = SortForm(sort_by=request.args.get('sort_by'))
-    # else:
-    #     # Либо используем сортировку по умолчанию
-    #     form = SortForm()
-    #
-    # return render_template('all.html',
-    #                        teachers=sort_teachers(get_all_teachers(), form.sort_by.data),
-    #                        sort_form=form)
-    pass
+    if request.args.get('sort_by'):
+        # Если в адресной строке есть критерий сортировки, отразим его в поле выбора
+        form = SortForm(sort_by=request.args.get('sort_by'))
+    else:
+        # Либо используем сортировку по умолчанию
+        form = SortForm()
+
+    return render_template('all.html',
+                           teachers=sort_teachers(form.sort_by.data),
+                           sort_form=form)
+
 
 @app.route('/goals/<goal>/')
 def render_goal(goal):
