@@ -7,7 +7,7 @@
         <div class="text-center mb-5">
             <div class="btn-group mx-auto mb-0" role="group" aria-label="Basic example">
                 {% for goal in goals %}
-                <a href="/goals/{{ goal.id }}/" class="btn btn-outline-secondary">{{ goal.emoji }} {{ goal.ru_name }}</a>
+                <a href="/goals/{{ goal.name }}/" class="btn btn-outline-secondary">{{ goal.emoji }} {{ goal.ru_name }}</a>
                 {% endfor %}
             </div>
         </div>
