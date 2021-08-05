@@ -6,7 +6,7 @@ from flask_migrate import Migrate
 from pydash.collections import filter_
 from data_loader import load_data
 
-from models import db, Teacher
+from models import db, Teacher, Goal
 from csrf import generate_csrf
 from forms import RequestForm, BookingForm, SortForm, write_form_to_json
 
@@ -24,8 +24,9 @@ db.init_app(app)
 migrate = Migrate(app, db)
 
 # Загружаем данные в базу
+db.drop_all()
 load_data(db)
-# db.session.query(Teacher).all()
+
 # Генерируем случайный ключ
 app.secret_key = generate_csrf()
 
@@ -36,24 +37,25 @@ def sort_teachers(teachers: list, sort_type):
     sort_type = int(sort_type)
     if sort_type == 1:
         # По рейтингу
-        return sorted(teachers, key=lambda x: x['rating'], reverse=True)
+        return Teacher.query.order_by(Teacher.rating.desc()).all()
     if sort_type == 2:
         # Сначала дорогие
-        return sorted(teachers, key=lambda x: x['price'], reverse=True)
+        return Teacher.query.order_by(Teacher.price.desc()).all()
     if sort_type == 3:
         # Сначала недорогие
-        return sorted(teachers, key=lambda x: x['price'])
+        return Teacher.query.order_by(Teacher.price.desc()).all()
     # Либо случайная выдача
-    return random.sample(teachers, len(teachers))
+    all_teachers = Teacher.query.all()
+    return random.sample(all_teachers, len(all_teachers))
 
 
 @app.route('/')
 def render_index():
     """Главная страница. Содержит 6 случайных преподавателей и возможность выбора цели."""
-    # random_teachers = random.sample(get_all_teachers(), 6)
-    # return render_template('index.html',
-    #                        goals=get_goals(),
-    #                        teachers=random_teachers)
+    random_teachers = random.sample(Teacher.query.all(), 6)
+    return render_template('index.html',
+                           goals=Goal.query.all(),
+                           teachers=random_teachers)
     pass
 
 
@@ -170,4 +172,4 @@ def render_error(*args):
 
 
 if __name__ == '__main__':
-    app.run()
+    app.run(debug=True, use_reloader=True)
