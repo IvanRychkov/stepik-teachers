@@ -1,12 +1,14 @@
 import random
 import os
+import json
+from pprint import pp
 
 from flask import Flask, render_template, request
 from flask_migrate import Migrate
-from pydash.collections import filter_
+from pydash.collections import filter_, find
 from data_loader import load_data
 
-from models import db, Teacher, Goal
+from models import db, Teacher, Goal, Weekday
 from csrf import generate_csrf
 from forms import RequestForm, BookingForm, SortForm, write_form_to_json
 
@@ -87,22 +89,25 @@ def render_goal(goal_id):
 def render_profile(teacher_id):
     """Страница преподавателя."""
     # Получаем преподавателя по id
-    # teacher = get_teacher(teacher_id)
+    teacher = Teacher.query.get(teacher_id)
 
-    # Получаем русскоязычные названия для целей
-    # goals = get_goals(teacher, drop_emoji=True)
-    #
-    # # Получаем русскоязычные названия для дней недели
-    # weekdays = get_weekdays()
-    #
-    # # Для каждого дня оставляем время, когда преподаватель свободен
-    # # + прикрепляем русскоязычное имя
-    # free_times = {wd: {'ru_name': weekdays[wd],
-    #                    'times': [time for time, free in times.items() if free]}
-    #               for wd, times in teacher['free'].items()}
-    #
-    # return render_template('profile.html', teacher=teacher, goals=goals, free_times=free_times)
-    pass
+    # Для каждого дня оставляем время, когда преподаватель свободен
+    # + прикрепляем русскоязычное имя
+    weekdays = Weekday.query.all()
+    free_times = {day: {'ru_name': find(weekdays,
+                                        lambda w: w.short_name == day).ru_name,
+                        'timeslots': [slot
+                                      for slot, free
+                                      in times.items()
+                                      if free]}
+                  for day, times in teacher.free.items()}
+
+    pp(type(teacher.free))
+    return render_template('profile.html',
+                           teacher=teacher,
+                           goals=teacher.goals,
+                           free_times=free_times)
+
 
 @app.route('/request/')
 def render_request_form():

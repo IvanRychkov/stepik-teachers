@@ -16,7 +16,6 @@ def load_data(db):
     for g in data.goals:
         db.session.add(m.Goal(**g))
     print('goals ok')
-    print('goals already exist')
 
     # Загружаем преподавателей
     if m.Teacher.query.count() == 0:

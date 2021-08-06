@@ -10,20 +10,21 @@
                     <section class="teacher=info">
 
                         <h1 class="h2">{{ teacher.name }}</h1>
-                        <p><span class="badge badge-secondary mr-2">{{ goals.values()|join(', ') }} </span>Рейтинг: {{
+                        <p><span class="badge badge-secondary mr-2">{{
+                            goals|map(attribute='ru_name')|join(', ')
+                            }} </span>Рейтинг: {{
                             teacher.rating }} Ставка: {{ teacher.price }} / час</p>
                         <p>{{ teacher.about }}</p>
 
                     </section>
                     <section class="available">
-
                         <h4 class="mb-4 mt-5">Записаться на пробный урок</h4>
-                        {% for weekday_code, day in free_times.items() %}
-                        <h6 class="mt-4">{{ day.ru_name }}</h6>
-                        {% if day.times|length > 0 %}
-                        {% for t in day.times %}
-                        <a href="/booking/{{ teacher.id }}/{{ weekday_code }}/{{ t }}/"
-                           class="btn btn-outline-success mr-2">{{ t }} свободно</a>
+                        {% for weekday_code, info in free_times.items() %}
+                        <h6 class="mt-4">{{ info.ru_name }}</h6>
+                        {% if info.values()|length > 0 %}
+                        {% for slot in info.timeslots %}
+                        <a href="/booking/{{ teacher.id }}/{{ weekday_code }}/{{ slot }}/"
+                           class="btn btn-outline-success mr-2">{{ slot }} свободно</a>
                         {% endfor %}
                         {% else %}
                         <p>Нет свободных уроков</p>
