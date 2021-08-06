@@ -37,7 +37,8 @@ class RequestForm(PersonalForm):
     goals = RadioField('Какая цель занятий?',
                        choices=[],
                        default='travel',
-                       validators=[InputRequired('Выберите цель занятий')])
+                       validators=[InputRequired('Выберите цель занятий')],
+                       )
 
     times = RadioField('Сколько времени есть?',
                        choices=[

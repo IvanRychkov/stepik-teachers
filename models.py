@@ -54,7 +54,9 @@ class Booking(db.Model):
 class Request(db.Model):
     __tablename__ = 'requests'
     id = db.Column(db.Integer, primary_key=True)
-    name = db.Column(db.String())
-    teacher_id = db.Column(db.Integer(), db.ForeignKey('teachers.id'))
-    teacher = db.relationship('Teacher')
+    name = db.Column(db.String(), nullable=False)
+    phone = db.Column(db.String(), nullable=False)
+    goal_id = db.Column(db.Integer, db.ForeignKey('goals.id'))
+    time = db.Column(db.String())
+    goal = db.relationship('Goal', uselist=False)
 

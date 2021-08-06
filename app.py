@@ -8,7 +8,7 @@ from flask_migrate import Migrate
 from pydash.collections import filter_, find
 from data_loader import load_data
 
-from models import db, Teacher, Goal, Weekday
+from models import db, Teacher, Goal, Weekday, Request, Booking
 from csrf import generate_csrf
 from forms import RequestForm, BookingForm, SortForm, write_form_to_json
 
@@ -112,8 +112,9 @@ def render_profile(teacher_id):
 def render_request_form():
     """Заявка на подбор."""
     form = RequestForm()
-    form.goals.choices = [(goal.name, goal.ru_name)
+    form.goals.choices = [(goal.id, goal.ru_name)
                           for goal in Goal.query.all()]
+    form.goals.data = '1'  # Странно, почему строка
     return render_template('request.html',
                            form=form)
 
@@ -125,15 +126,20 @@ def render_request_done():
     form = RequestForm()
 
     # Получим user-friendly названия цели и времени
-    # goal_ru = get_goals()[form.goals.data]
+    goal_ru = Goal.query.get(form.goals.data)
     time_chosen = dict(form.times.choices)[form.times.data]
 
-    # Запишем в JSON
-    # write_form_to_json(REQUEST_DATA, form)
-    # return render_template('request_done.html',
-    #                        form=form,
-    #                        goal=goal_ru,
-    #                        time=time_chosen)
+    # Добавим в базу
+    db.session.add(Request(name=form.name.data,
+                           goal_id=form.goals.data,
+                           phone=form.phone.data,
+                           time=time_chosen))
+    db.session.commit()
+
+    return render_template('request_done.html',
+                           form=form,
+                           goal=goal_ru,
+                           time=time_chosen)
 
 
 @app.route('/booking/<int:teacher_id>/<weekday>/<time>/')
