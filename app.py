@@ -163,14 +163,21 @@ def render_booking_form(teacher_id, weekday, time):
 def render_booking_done():
     """Заявка на бронирование отправлена."""
     # Тянем данные из POST-запроса
-    # form = BookingForm()
-    # weekday_name = get_weekdays()[form.weekday.data]
-    #
-    # # Сохраняем в JSON
-    # write_form_to_json(BOOKING_DATA, form)
-    # return render_template('booking_done.html',
-    #                        weekday=weekday_name,
-    #                        form=form)
+    form = BookingForm()
+    wd = Weekday.query.filter(
+        Weekday.short_name == form.weekday.data).first()
+
+    # Записываем в базу
+    db.session.add(Booking(name = form.name.data,
+                           phone=form.phone.data,
+                           teacher_id=form.teacher_id.data,
+                           day_short_name=form.weekday.data,
+                           time=form.time.data))
+    db.session.commit()
+
+    return render_template('booking_done.html',
+                           weekday=wd,
+                           form=form)
 
 
 @app.errorhandler(404)
