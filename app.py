@@ -3,7 +3,7 @@ import os
 import json
 from pprint import pp
 
-from flask import Flask, render_template, request
+from flask import Flask, render_template, request, g
 from flask_migrate import Migrate
 from pydash.collections import filter_, find
 from data_loader import load_data
@@ -14,7 +14,6 @@ from forms import RequestForm, BookingForm, SortForm, write_form_to_json
 
 
 app = Flask(__name__)
-
 # Привязываем базу к приложению
 app.config["SQLALCHEMY_DATABASE_URI"] = 'postgresql://postgres:postgres@127.0.0.1:5432/postgres'
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
@@ -113,6 +112,8 @@ def render_profile(teacher_id):
 def render_request_form():
     """Заявка на подбор."""
     form = RequestForm()
+    form.goals.choices = [(goal.name, goal.ru_name)
+                          for goal in Goal.query.all()]
     return render_template('request.html',
                            form=form)
 

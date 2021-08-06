@@ -4,6 +4,7 @@ import os
 from flask_wtf import FlaskForm
 from wtforms import RadioField, StringField, HiddenField, SelectField
 from wtforms.validators import InputRequired
+from models import db, Goal
 
 
 class SortForm(FlaskForm):
@@ -30,11 +31,14 @@ class BookingForm(PersonalForm):
 
 
 class RequestForm(PersonalForm):
-    """Персональная форма с выбором цели и времени на обучение."""
+    """Персональная форма с выбором цели и времени на обучение.
+
+    Goals нужно перезаписать из SQL-запроса, когда форма создаётся для отображения на странице."""
     goals = RadioField('Какая цель занятий?',
-                       # choices=[*get_goals(drop_emoji=True).items()],
+                       choices=[],
                        default='travel',
                        validators=[InputRequired('Выберите цель занятий')])
+
     times = RadioField('Сколько времени есть?',
                        choices=[
                            ('1-2', '1-2 часа в неделю'),
@@ -44,6 +48,7 @@ class RequestForm(PersonalForm):
                        ],
                        default='1-2',
                        validators=[InputRequired('Укажите, сколько времени вы готовы учиться')])
+
 
 
 def write_form_to_json(path: str, form: FlaskForm) -> None:

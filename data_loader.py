@@ -1,6 +1,3 @@
-import json
-
-import sqlalchemy.exc
 from data import data
 import models as m
 
