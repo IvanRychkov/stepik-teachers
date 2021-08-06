@@ -36,7 +36,7 @@ class Weekday(db.Model):
     __tablename__ = 'weekdays'
     id = db.Column(db.Integer, primary_key=True)
     short_name = db.Column(db.VARCHAR(3), unique=True)
-    ru_name = db.Column(db.String())
+    ru_name = db.Column(db.String(), unique=True)
 
 
 class Booking(db.Model):

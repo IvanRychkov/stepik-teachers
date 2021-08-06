@@ -146,17 +146,17 @@ def render_request_done():
 def render_booking_form(teacher_id, weekday, time):
     """Форма бронирования времени."""
     # Загружаем данные
-    # teacher = get_teacher(teacher_id)
-    # weekday_name = get_weekdays()[weekday]
-    #
+    teacher = Teacher.query.get(teacher_id)
+    wd = Weekday.query.filter(Weekday.short_name == weekday).first()
+
     # # Инициализируем форму со скрытыми полями
-    # form = BookingForm(weekday=weekday,
-    #                    time=time,
-    #                    teacher_id=teacher['id'])
-    # return render_template('booking.html',
-    #                        form=form,
-    #                        teacher=teacher,
-    #                        weekday=weekday_name)
+    form = BookingForm(weekday=weekday,
+                       time=time,
+                       teacher_id=teacher.id)
+    return render_template('booking.html',
+                           form=form,
+                           teacher=teacher,
+                           weekday=wd)
 
 
 @app.route('/booking_done/', methods=['POST'])
