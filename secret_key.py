@@ -1,5 +1,5 @@
-import random
 import os
+import random
 
 env_var = 'SECRET_KEY'
 

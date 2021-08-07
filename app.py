@@ -1,22 +1,20 @@
 import os
 import random
 
-from flask import Flask, render_template, request, g
+from flask import Flask, render_template, request
 from flask_migrate import Migrate
-from pydash.collections import filter_, find
-from data_loader import load_data
+from pydash.collections import find
 
+from data_loader import load_data
+from forms import RequestForm, BookingForm, SortForm
 from models import db, Teacher, Goal, Weekday, Request, Booking
 from secret_key import generate_secret_key
-from forms import RequestForm, BookingForm, SortForm, write_form_to_json
-
 
 app = Flask(__name__)
 
 # Привязываем базу к приложению
 app.config["SQLALCHEMY_DATABASE_URI"] = os.getenv('DATABASE_URL').replace('postgres://',
                                                                           'postgresql://')
-# 'postgresql://postgres:postgres@127.0.0.1:5432/postgres' # если среда не работает
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 
 app.app_context().push()
@@ -30,7 +28,6 @@ load_data(db)
 
 # Генерируем ключ для csrf-токенов
 app.secret_key = generate_secret_key()
-# 'thing_im_gonna_add_to_environment_variables_when_i_have_time'
 
 
 def sort_teachers(sort_type):
@@ -168,7 +165,7 @@ def render_booking_done():
         Weekday.short_name == form.weekday.data).first()
 
     # Записываем в базу
-    db.session.add(Booking(name = form.name.data,
+    db.session.add(Booking(name=form.name.data,
                            phone=form.phone.data,
                            teacher_id=form.teacher_id.data,
                            day_short_name=form.weekday.data,

@@ -59,4 +59,3 @@ class Request(db.Model):
     goal_id = db.Column(db.Integer, db.ForeignKey('goals.id'))
     time = db.Column(db.String())
     goal = db.relationship('Goal', uselist=False)
-

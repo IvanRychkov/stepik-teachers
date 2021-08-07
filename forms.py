@@ -4,7 +4,6 @@ import os
 from flask_wtf import FlaskForm
 from wtforms import RadioField, StringField, HiddenField, SelectField
 from wtforms.validators import InputRequired
-from models import db, Goal
 
 
 class SortForm(FlaskForm):
