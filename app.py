@@ -89,7 +89,7 @@ def render_goal(goal_id):
 def render_profile(teacher_id):
     """Страница преподавателя."""
     # Получаем преподавателя по id
-    teacher = Teacher.query.get(teacher_id)
+    teacher = Teacher.query.get_or_404(teacher_id)
 
     # Для каждого дня оставляем время, когда преподаватель свободен
     # + прикрепляем русскоязычное имя
