@@ -51,7 +51,6 @@ class RequestForm(PersonalForm):
                        validators=[InputRequired('Укажите, сколько времени вы готовы учиться')])
 
 
-
 def write_form_to_json(path: str, form: FlaskForm) -> None:
     """Записывает данные формы в JSON-файл."""
     # Если файл есть

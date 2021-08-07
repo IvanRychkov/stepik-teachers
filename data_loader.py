@@ -38,4 +38,3 @@ def load_data(db):
         db.session.commit()
     except:
         print('data already exists')
-        pass
