@@ -14,6 +14,7 @@ from forms import RequestForm, BookingForm, SortForm, write_form_to_json
 
 
 app = Flask(__name__)
+
 # Привязываем базу к приложению
 app.config["SQLALCHEMY_DATABASE_URI"] = 'postgresql://postgres:postgres@127.0.0.1:5432/postgres'
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
@@ -25,7 +26,6 @@ db.init_app(app)
 migrate = Migrate(app, db)
 
 # Загружаем данные в базу
-db.drop_all()
 load_data(db)
 
 # Генерируем случайный ключ
