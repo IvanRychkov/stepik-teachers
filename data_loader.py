@@ -37,4 +37,5 @@ def load_data(db):
 
         db.session.commit()
     except:
+        db.session.rollback()
         print('data already exists')

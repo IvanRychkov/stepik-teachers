@@ -1,3 +1,4 @@
+import os
 import random
 from pprint import pp
 
@@ -7,14 +8,15 @@ from pydash.collections import filter_, find
 from data_loader import load_data
 
 from models import db, Teacher, Goal, Weekday, Request, Booking
-from csrf import generate_csrf
+from secret_key import generate_secret_key
 from forms import RequestForm, BookingForm, SortForm, write_form_to_json
 
 
 app = Flask(__name__)
 
 # Привязываем базу к приложению
-app.config["SQLALCHEMY_DATABASE_URI"] = 'postgresql://postgres:postgres@127.0.0.1:5432/postgres'
+app.config["SQLALCHEMY_DATABASE_URI"] = os.getenv('DATABASE_URL')
+# 'postgresql://postgres:postgres@127.0.0.1:5432/postgres' # если среда не работает
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 
 app.app_context().push()
@@ -26,8 +28,9 @@ migrate = Migrate(app, db)
 # Загружаем данные в базу
 load_data(db)
 
-# Генерируем случайный ключ
-app.secret_key = generate_csrf()
+# Генерируем ключ для csrf-токенов
+app.secret_key = generate_secret_key()
+# 'thing_im_gonna_add_to_environment_variables_when_i_have_time'
 
 
 def sort_teachers(sort_type):
@@ -99,7 +102,6 @@ def render_profile(teacher_id):
                                       if free]}
                   for day, times in teacher.free.items()}
 
-    pp(type(teacher.free))
     return render_template('profile.html',
                            teacher=teacher,
                            goals=teacher.goals,
