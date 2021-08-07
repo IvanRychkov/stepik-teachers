@@ -1,6 +1,4 @@
 import random
-import os
-import json
 from pprint import pp
 
 from flask import Flask, render_template, request, g

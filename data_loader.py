@@ -7,12 +7,12 @@ def load_data(db):
         # Загружаем дни недели в базу
         for wd, name in data.weekdays.items():
             db.session.add(m.Weekday(short_name=wd, ru_name=name))
-        print('weekdays ok')
+        print('weekdays loaded')
 
         # Загружаем цели
         for g in data.goals:
             db.session.add(m.Goal(**g))
-        print('goals ok')
+        print('goals loaded')
 
         # Загружаем преподавателей
         if m.Teacher.query.count() == 0:
@@ -33,7 +33,7 @@ def load_data(db):
                         t.goals.append(g)
 
                 db.session.add(t)
-            print('teachers ok')
+            print('teachers loaded')
 
         db.session.commit()
     except:
