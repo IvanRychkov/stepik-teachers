@@ -18,6 +18,3 @@ def generate_secret_key():
     print('secret key generated')
     return key
 
-
-if __name__ == '__main__':
-    generate_secret_key()
