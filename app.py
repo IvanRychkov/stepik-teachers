@@ -1,6 +1,5 @@
 import os
 import random
-from pprint import pp
 
 from flask import Flask, render_template, request, g
 from flask_migrate import Migrate
