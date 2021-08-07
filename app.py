@@ -15,7 +15,8 @@ from forms import RequestForm, BookingForm, SortForm, write_form_to_json
 app = Flask(__name__)
 
 # Привязываем базу к приложению
-app.config["SQLALCHEMY_DATABASE_URI"] = os.getenv('DATABASE_URL')
+app.config["SQLALCHEMY_DATABASE_URI"] = os.getenv('DATABASE_URL').replace('postgres://',
+                                                                          'postgresql://')
 # 'postgresql://postgres:postgres@127.0.0.1:5432/postgres' # если среда не работает
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 
