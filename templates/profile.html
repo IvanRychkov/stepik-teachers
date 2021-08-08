@@ -21,7 +21,7 @@
                         <h4 class="mb-4 mt-5">Записаться на пробный урок</h4>
                         {% for weekday_code, info in free_times.items() %}
                         <h6 class="mt-4">{{ info.ru_name }}</h6>
-                        {% if info.values()|length > 0 %}
+                        {% if info.timeslots|length > 0 %}
                         {% for slot in info.timeslots %}
                         <a href="/booking/{{ teacher.id }}/{{ weekday_code }}/{{ slot }}/"
                            class="btn btn-outline-success mr-2">{{ slot }} свободно</a>
